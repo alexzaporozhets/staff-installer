@@ -23,7 +23,12 @@ services:
     image: prom/node-exporter
     expose:
       - 9001
-  
+ 
+  redis_exporter:
+    image: 21zoo/redis_exporter
+    command: -redis.addr=redis:6379
+
+ 
   mongodb_exporter:
     image: eses/mongodb_exporter
     expose:
