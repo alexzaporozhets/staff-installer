@@ -35,3 +35,4 @@ scrape_configs:
             - 'mongodb_exporter:9104'
             - 'redis_exporter:9121'
             - 'nginx:9145'
+            - 'rabbitmq_exporter:9090'

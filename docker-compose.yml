@@ -27,8 +27,12 @@ services:
   redis_exporter:
     image: 21zoo/redis_exporter
     command: -redis.addr=redis:6379
-
  
+  rabbitmq_exporter:
+    image: kbudde/rabbitmq-exporter
+    environment:
+      RABBIT_URL: http://rabbitmq:15672
+
   mongodb_exporter:
     image: eses/mongodb_exporter
     expose:
@@ -86,10 +90,8 @@ services:
      - mongo
      - rabbitmq
      - redis
-    
     ports:
       - "3000:3000"     
-     
     environment:
      PORT: 3000
      MONGO_URI: mongodb://mongo/staffdotcom
@@ -99,7 +101,9 @@ services:
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
-  
+     AWS_ENDPOINT: s3
+     AWS_ACCESS_KEY_ID: identity
+     AWS_SECRET_ACCESS_KEY: credential
     command: bash -c "sleep 5; cd /pipeline/source && npm start"
   
   
@@ -132,7 +136,7 @@ services:
       - ./storage/mongodb:/data/db
   
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:3-management
     ports:
       - "15672:15672"
       - "5672:5672"
@@ -140,3 +144,13 @@ services:
 
   redis:
     image: redis
+
+  s3:
+    image: andrewgaul/s3proxy
+    volumes:
+      - ./storage/s3:/data
+    environment:
+      S3PROXY_AUTHORIZATION: none
+      S3PROXY_IDENTITY: identity
+      S3PROXY_CREDENTIAL: credential
+
