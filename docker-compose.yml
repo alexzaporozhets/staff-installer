@@ -67,12 +67,13 @@ services:
       - config.monitoring
 
   nginx:
-    image: nginx:stable-alpine
+    image: danday74/nginx-lua
     restart: always
     ports:
       - "80:80"
     volumes:
-      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./etc/nginx/nginx.conf:/nginx/conf/nginx.conf
+      - ./etc/nginx/prometheus.lua:/etc/nginx/prometheus.lua
     links:
       - api-server
       - app-web
