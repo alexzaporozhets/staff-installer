@@ -135,6 +135,18 @@ services:
     volumes:
       - ./storage/mongodb:/data/db
   
+  mongo-backup:
+    image: tutum/mongodb-backup
+    environment:
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DB: staffdotcom
+      CRON_TIME: '0 0 * * *'
+      MAX_BACKUPS: 10
+      INIT_BACKUP: 1
+    volumes:
+      - ./storage/mongodb-backup:/backup
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
