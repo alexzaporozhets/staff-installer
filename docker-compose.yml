@@ -90,6 +90,7 @@ services:
      - mongo
      - rabbitmq
      - redis
+     - s3:s3.staff.local
     ports:
       - "3000:3000"     
     environment:
