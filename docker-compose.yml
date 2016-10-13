@@ -102,7 +102,7 @@ services:
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
-     AWS_ENDPOINT: s3
+     AWS_ENDPOINT: s3.staff.local
      AWS_ACCESS_KEY_ID: identity
      AWS_SECRET_ACCESS_KEY: credential
     command: bash -c "sleep 5; cd /pipeline/source && npm start"
@@ -130,7 +130,8 @@ services:
      PORT: 3000
      API_URL: "http://api.staff.local"
      NODE_ENV: production
-  
+    command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
+   
   mongo:
     image: mongo
     volumes:
