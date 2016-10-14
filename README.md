@@ -12,7 +12,7 @@
 
 ## Install 
 
-* `git clone https://github.com/mystaff/installer`
+* `git clone https://github.com/alexzaporozhets/staff-installer/`
 * `aws ecr get-login --region us-east-1` (use docker-registry user credentials)
 * `docker-compose up -d`
 
