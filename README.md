@@ -28,3 +28,8 @@
 ## Extra
 * `docker-compose ps` shows running containers.
 
+## List mongo backups
+* ls -l storage/mongodb-backup/
+
+## Restore mongo backup
+* docker exec -it staff_mongo-backup_1 mongorestore --drop -h mongo -d staffdotcom /backup/2016.10.14.092904/staffdotcom/
