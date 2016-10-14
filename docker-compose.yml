@@ -105,6 +105,7 @@ services:
      AWS_ENDPOINT: s3.staff.local
      AWS_ACCESS_KEY_ID: identity
      AWS_SECRET_ACCESS_KEY: credential
+     AWS_DISABLE_MIME: 1
     command: bash -c "sleep 5; cd /pipeline/source && npm start"
   
   
