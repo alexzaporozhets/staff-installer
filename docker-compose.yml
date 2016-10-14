@@ -140,6 +140,8 @@ services:
   
   mongo-backup:
     image: tutum/mongodb-backup
+    depends_on:
+      - mongo
     environment:
       MONGODB_HOST: mongo
       MONGODB_PORT: 27017
