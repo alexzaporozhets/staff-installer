@@ -14,6 +14,7 @@
 
 * `git clone https://github.com/alexzaporozhets/staff-installer/`
 * `aws ecr get-login --region us-east-1` (use docker-registry user credentials)
+* `cd staff-installer`
 * `docker-compose up -d`
 
 
