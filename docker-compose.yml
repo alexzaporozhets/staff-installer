@@ -71,7 +71,7 @@ services:
       - config.monitoring
 
   nginx:
-    image: danday74/nginx-lua
+    build: src/nginx
     restart: always
     ports:
       - "80:80"
