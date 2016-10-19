@@ -78,6 +78,7 @@ services:
     volumes:
       - ./etc/nginx/nginx.conf:/nginx/conf/nginx.conf
       - ./etc/nginx/prometheus.lua:/etc/nginx/prometheus.lua
+      - ./storage/nginx/thumbnails:/tmp/nginx-thumbnails
     links:
       - api-server
       - app-web
@@ -170,4 +171,5 @@ services:
       S3PROXY_AUTHORIZATION: none
       S3PROXY_IDENTITY: identity
       S3PROXY_CREDENTIAL: credential
+      LOG_LEVEL: debug
 
