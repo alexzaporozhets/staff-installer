@@ -171,5 +171,5 @@ services:
       S3PROXY_AUTHORIZATION: none
       S3PROXY_IDENTITY: identity
       S3PROXY_CREDENTIAL: credential
-      LOG_LEVEL: debug
+      LOG_LEVEL: info
 
