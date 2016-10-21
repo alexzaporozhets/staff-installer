@@ -15,7 +15,7 @@ ENV LUAJIT_LIB /usr/local/lib
 ENV LUAJIT_INC /usr/local/include/luajit-2.0
 
 RUN apt-get -qq update && \
-    apt-get -qq -y install wget make libpcre3 libpcre3-dev zlib1g-dev libssl-dev gcc unzip
+    apt-get -qq -y install wget make libpcre3 libpcre3-dev zlib1g-dev libssl-dev gcc unzip libgd-dev libgd3
 
 # ***** DOWNLOAD AND UNTAR *****
 
@@ -41,9 +41,11 @@ WORKDIR /nginx-${VER_NGINX}
 RUN ./configure --prefix=${NGINX_ROOT} --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" \
     --add-module=/${NGINX_DEVEL_KIT} \
     --add-module=/headers-more-nginx-module-master \
+    --with-http_image_filter_module \
+    --with-http_ssl_module \
     --add-module=/${LUA_NGINX_MODULE} && \
     make -j2 && make install && ln -s ${NGINX_ROOT}/sbin/nginx /usr/local/sbin/nginx
-RUN apt-get -y remove wget make libpcre3-dev zlib1g-dev libssl-dev gcc unzip && \
+RUN apt-get -y remove wget libgd-dev make libpcre3-dev zlib1g-dev libssl-dev gcc unzip && \
     apt-get -y autoremove && \
     apt-get clean
 

@@ -67,17 +67,19 @@ services:
       - 3003:3000
     volumes:
       - ./storage/grafana:/var/lib/grafana
+    environment:
+      GF_USERS_ALLOW_SIGN_UP: "false"
     env_file:
-      - config.monitoring
+      - .env
 
   nginx:
     build: src/nginx
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./etc/nginx/nginx.conf:/nginx/conf/nginx.conf
-      - ./etc/nginx/prometheus.lua:/etc/nginx/prometheus.lua
+      - ./etc/nginx:/nginx/conf
       - ./storage/nginx/thumbnails:/tmp/nginx-thumbnails
     links:
       - api-server
@@ -104,10 +106,10 @@ services:
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
      AWS_ENDPOINT: s3.staff.local
-     AWS_ACCESS_KEY_ID: identity
-     AWS_SECRET_ACCESS_KEY: credential
      AWS_S3_DISABLE_MIME: 1
      INSTALL_MODE: "local"
+    env_file:
+      - .env
     command: bash -c "sleep 5; cd /pipeline/source && npm start"
   
   
@@ -169,8 +171,7 @@ services:
     volumes:
       - ./storage/s3:/data
     environment:
-      S3PROXY_AUTHORIZATION: none
-      S3PROXY_IDENTITY: identity
-      S3PROXY_CREDENTIAL: credential
-      LOG_LEVEL: info
+      S3PROXY_AUTHORIZATION: aws-v2
+    env_file:
+      - .env
 
