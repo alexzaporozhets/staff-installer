@@ -37,6 +37,9 @@ GRAFANA_PASS=$(date +%s | sha256sum | base64 | head -c 8)
 
 IP=$(ifconfig | awk '/inet addr/{print substr($2,6)}'|grep -vE '^(127\.0\.0\.1|172\.[12])'|head -n 1)
 
+$ECHO  = ${c_green} Creating bucket ${c_norm}
+mkdir -p storage/s3/mystaff-files
+
 $ECHO  = ${c_green} Generating config ${c_norm}
 
 cat >.env <<EOT
@@ -53,6 +56,7 @@ docker-compose up -d
 
 $ECHO
 $ECHO = ${c_green} Monitoring: ${c_norm}
-$ECHO
 $ECHO Grafana available as ${c_yellow} "http://${IP}:3003" ${c_norm}
 $ECHO login: ${c_yellow} "admin" ${c_norm} password: ${c_yellow} "${GRAFANA_PASS}" ${c_norm}
+$ECHO
+$ECHO = ${c_green} Done! ${c_norm}
