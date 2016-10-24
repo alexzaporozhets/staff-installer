@@ -55,6 +55,21 @@ $ECHO = ${c_green} Reconfigure containers: ${c_norm}
 docker-compose up -d 
 
 $ECHO
+$ECHO = ${c_green} Waiting for api starting up ${c_norm}
+sleep 20
+
+$ECHO
+$ECHO = ${c_green} Testing: ${c_norm}
+for f in app desktop api;do
+  code=$(curl -sL -w "%{http_code}\\n"  --header "Host: $f.staff.local"  127.0.0.1 -o /dev/null)
+  if [ $code -eq 200 ]; then
+    $ECHO $f.staff.local ${c_green} $code ok ${c_norm}
+  else
+    $ECHO $f.staff.local ${c_red} $code fail ${c_norm}
+  fi
+done
+
+$ECHO
 $ECHO = ${c_green} Monitoring: ${c_norm}
 $ECHO Grafana available as ${c_yellow} "http://${IP}:3003" ${c_norm}
 $ECHO login: ${c_yellow} "admin" ${c_norm} password: ${c_yellow} "${GRAFANA_PASS}" ${c_norm}
