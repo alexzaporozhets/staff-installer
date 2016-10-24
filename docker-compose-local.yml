@@ -73,13 +73,14 @@ services:
       - .env
 
   nginx:
-    image: danday74/nginx-lua
+    build: src/nginx
     restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./etc/nginx:/nginx/conf
+      - ./storage/nginx/thumbnails:/tmp/nginx-thumbnails
     links:
       - api-server
       - app-web
@@ -92,6 +93,7 @@ services:
      - mongo
      - rabbitmq
      - redis
+     - s3:s3.staff.local
     ports:
       - "3000:3000"     
     environment:
@@ -103,9 +105,8 @@ services:
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
-     AZURE_NAME: staffdotcom
-     AZURE_KEY: "2Gt1dprywqC7RMiSohfOLAmseSDVwyYx0XyMm40pyHzCFAbq/54xqfXfDn/QNbpuEnKZZIBLGVmPqzGvn3AuA=="
-     AZURE_CONTAINER: mystaff-files
+     AWS_ENDPOINT: s3.staff.local
+     AWS_S3_DISABLE_MIME: 1
      INSTALL_MODE: "local"
     env_file:
       - .env
@@ -164,3 +165,13 @@ services:
 
   redis:
     image: redis
+
+  s3:
+    image: andrewgaul/s3proxy
+    volumes:
+      - ./storage/s3:/data
+    environment:
+      S3PROXY_AUTHORIZATION: aws-v2
+    env_file:
+      - .env
+
