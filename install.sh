@@ -31,16 +31,24 @@ function warn()
 $ECHO
 $ECHO = ${c_green} Generating passwords ${c_norm}
 
-S3_ID=identity
-S3_PASS=$(date +%s | sha256sum | base64 | head -c 32)
+USE_S3=0
 GRAFANA_PASS=$(date +%s | sha256sum | base64 | head -c 8)
 
 IP=$(ifconfig | awk '/inet addr/{print substr($2,6)}'|grep -vE '^(127\.0\.0\.1|172\.[12])'|head -n 1)
 
+
+if [ $USE_S3 -eq 1 ] ; then
 $ECHO  = ${c_green} Creating bucket ${c_norm}
 mkdir -p storage/s3/mystaff-files
+fi
 
 $ECHO  = ${c_green} Generating config ${c_norm}
+
+if ! [ -f .env ]; then
+if [ $USE_S3 -eq 1 ] ; then
+
+S3_ID=identity
+S3_PASS=$(date +%s | sha256sum | base64 | head -c 32)
 
 cat >.env <<EOT
 AWS_ACCESS_KEY_ID=${S3_ID}
@@ -49,6 +57,12 @@ S3PROXY_IDENTITY=${S3_ID}
 S3PROXY_CREDENTIAL=${S3_PASS}
 GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
 EOT
+else
+cat >.env <<EOT
+GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+EOT
+fi
+fi
 
 $ECHO = ${c_green} Reconfigure containers: ${c_norm}
 
