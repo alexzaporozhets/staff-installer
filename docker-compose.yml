@@ -104,7 +104,7 @@ services:
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
      AZURE_NAME: staffdotcom
-     AZURE_KEY: "2Gt1dprywqC7RMiSohfOLAmseSDVwyYx0XyMm40pyHzCFAbq/54xqfXfDn/QNbpuEnKZZIBLGVmPqzGvn3AuA=="
+     AZURE_KEY: "O2Gt1dprywqC7RMiSohfOLAmseSDVwyYx0XyMm40pyHzCFAbq/54xqfXfDn/QNbpuEnKZZIBLGVmPqzGvn3AuA=="
      AZURE_CONTAINER: mystaff-files
      INSTALL_MODE: "local"
     env_file:
