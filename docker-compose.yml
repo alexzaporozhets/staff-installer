@@ -103,12 +103,10 @@ services:
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
-     AZURE_NAME: staffdotcom
-     AZURE_KEY: "O2Gt1dprywqC7RMiSohfOLAmseSDVwyYx0XyMm40pyHzCFAbq/54xqfXfDn/QNbpuEnKZZIBLGVmPqzGvn3AuA=="
-     AZURE_CONTAINER: mystaff-files
      INSTALL_MODE: "local"
     env_file:
       - .env
+      - azure.env
     command: bash -c "sleep 5; cd /pipeline/source && npm start"
   
   
@@ -142,7 +140,9 @@ services:
       - ./storage/mongodb:/data/db
   
   mongo-backup:
-    image: tutum/mongodb-backup
+    #image: tutum/mongodb-backup
+    build: src/mongodb-backup
+    privileged: true
     depends_on:
       - mongo
     environment:
@@ -152,8 +152,12 @@ services:
       CRON_TIME: '0 0 * * *'
       MAX_BACKUPS: 10
       INIT_BACKUP: 1
+    env_file:
+      - azure.env
     volumes:
       - ./storage/mongodb-backup:/backup
+    cap_add:
+      - ALL
 
   rabbitmq:
     image: rabbitmq:3-management

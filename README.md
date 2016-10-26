@@ -30,7 +30,10 @@
 * `docker-compose ps` shows running containers.
 
 ## List mongo backups
-* ls -l storage/mongodb-backup/
+* `ls -l storage/mongodb-backup/` - for local backups.
+   In case AZURE_KEY defined, backups is done into AZURE Files Storage, into 'backup' share. You can list backups with
+   `docker exec -it staff_mongo-backup_1 ls /backup.azure` command.
 
 ## Restore mongo backup
-* docker exec -it staff_mongo-backup_1 mongorestore --drop -h mongo -d staffdotcom /backup/2016.10.14.092904/staffdotcom/
+* `docker exec -it staff_mongo-backup_1 mongorestore --drop -h mongo -d staffdotcom /backup/2016.10.14.092904/staffdotcom/` - for local storage
+* `docker exec -it staff_mongo-backup_1 mongorestore --drop -h mongo -d staffdotcom /backup.azure/2016.10.14.092904/staffdotcom/` - for Azure storage
