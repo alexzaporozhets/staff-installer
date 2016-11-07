@@ -4,6 +4,7 @@ services:
   prometheus:
     image: prom/prometheus
     container_name: prometheus
+    restart: always
     volumes:
       - ./etc/prometheus/:/etc/prometheus/
       - ./storage/prometheus:/prometheus
@@ -21,17 +22,20 @@ services:
   
   node-exporter:
     image: prom/node-exporter
+    restart: always
     expose:
       - 9001
  
   redis_exporter:
     image: 21zoo/redis_exporter
     command: -redis.addr=redis:6379
+    restart: always
  
   rabbitmq_exporter:
     image: kbudde/rabbitmq-exporter
     environment:
       RABBIT_URL: http://rabbitmq:15672
+    restart: always
 
   mongodb_exporter:
     image: eses/mongodb_exporter
@@ -40,6 +44,7 @@ services:
     volumes:
       - ./storage/mongodb_exporter/:/log
     command: -mongodb.uri mongodb://mongo/staffdotcom -log_dir /log
+    restart: always
 
   alertmanager:
     image: prom/alertmanager
@@ -48,6 +53,7 @@ services:
     command:
       - '-config.file=/etc/alertmanager/config.yml'
       - '-storage.path=/alertmanager'
+    restart: always
       
   cadvisor:
     image: google/cadvisor
@@ -58,6 +64,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     expose:
       - 8080
+    restart: always
   
   grafana:
     image: grafana/grafana
@@ -71,6 +78,7 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "false"
     env_file:
       - .env
+    restart: always
 
   nginx:
     build: src/nginx
@@ -85,10 +93,15 @@ services:
       - app-web
       - app-admin
       - app-desktop
+    restart: always
   
   api-server:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
     links:
+     - mongo
+     - rabbitmq
+     - redis
+    depends_on:
      - mongo
      - rabbitmq
      - redis
@@ -107,8 +120,54 @@ services:
     env_file:
       - .env
       - azure.env
-    command: bash -c "sleep 5; cd /pipeline/source && npm start"
-  
+    command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 server.js"
+    restart: always
+
+  api-stats:
+    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
+    links:
+     - mongo
+     - rabbitmq
+     - redis
+    depends_on:
+     - mongo
+     - rabbitmq
+     - redis
+    environment:
+     MONGO_URI: mongodb://mongo/staffdotcom
+     RABBIT_URI: amqp://rabbitmq
+     REDIS_URL: redis://redis
+     NODE_ENV: production
+     DEBUG_MQ: 1
+     INSTALL_MODE: "local"
+    env_file:
+      - .env
+      - azure.env
+    command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/workers/stat.js"
+    restart: always
+ 
+  api-retention:
+    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
+    links:
+     - mongo
+     - rabbitmq
+     - redis
+    depends_on:
+     - mongo
+     - rabbitmq
+     - redis
+    environment:
+     MONGO_URI: mongodb://mongo/staffdotcom
+     RABBIT_URI: amqp://rabbitmq
+     REDIS_URL: redis://redis
+     NODE_ENV: production
+     DEBUG_MQ: 1
+     INSTALL_MODE: "local"
+    env_file:
+      - .env
+      - azure.env
+    command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/workers/retention.js"
+    restart: always
   
   app-web:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-web:latest
@@ -116,7 +175,7 @@ services:
      PORT: 3000
      API_URL: "http://api.staff.local"
      NODE_ENV: production
-    
+    restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
   
   app-admin:
@@ -125,6 +184,7 @@ services:
      PORT: 3000
      API_URL: "http://api.staff.local"
      NODE_ENV: production
+    restart: always
   
   app-desktop:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-desktop:latest
@@ -132,12 +192,14 @@ services:
      PORT: 3000
      API_URL: "http://api.staff.local"
      NODE_ENV: production
+    restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
    
   mongo:
     image: mongo
     volumes:
       - ./storage/mongodb:/data/db
+    restart: always
   
   mongo-backup:
     #image: tutum/mongodb-backup
@@ -158,6 +220,7 @@ services:
       - ./storage/mongodb-backup:/backup
     cap_add:
       - ALL
+    restart: always
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -165,6 +228,8 @@ services:
       - "15672:15672"
       - "5672:5672"
       - "1883:1883"
+    restart: always
 
   redis:
     image: redis
+    restart: always
