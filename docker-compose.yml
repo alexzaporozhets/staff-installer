@@ -174,6 +174,7 @@ services:
     environment:
      PORT: 3000
      API_URL: "http://api.staff.local"
+     BASE_DIR = "/app/"
      NODE_ENV: production
     restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
@@ -183,6 +184,7 @@ services:
     environment:
      PORT: 3000
      API_URL: "http://api.staff.local"
+     BASE_DIR = "/admin/"
      NODE_ENV: production
     restart: always
   
@@ -191,6 +193,7 @@ services:
     environment:
      PORT: 3000
      API_URL: "http://api.staff.local"
+     BASE_DIR = "/desktop/"
      NODE_ENV: production
     restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
