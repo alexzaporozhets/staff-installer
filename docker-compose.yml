@@ -187,6 +187,7 @@ services:
      BASE_DIR: "/admin/"
      NODE_ENV: production
     restart: always
+    command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
   
   app-desktop:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-desktop:latest
