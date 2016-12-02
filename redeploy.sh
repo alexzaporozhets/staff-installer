@@ -5,4 +5,4 @@ aws ecr get-login|xargs sudo
 docker-compose pull
 docker-compose up -d
 docker rm $(docker ps -q) >/dev/null 2>&1
-docker rmi $(docker images -f "dangling=true" -q)
+docker rmi $(docker images -q)  >/dev/null 2>&1
