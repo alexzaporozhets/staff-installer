@@ -117,6 +117,7 @@ services:
      NODE_API_CLUSTERS: 8
      DEBUG_MQ: 1
      INSTALL_MODE: "local"
+     ATATUS_KEY: "61a362f515c14428865d5fc4214346cc"
     env_file:
       - .env
       - azure.env
