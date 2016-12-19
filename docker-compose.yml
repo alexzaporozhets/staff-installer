@@ -31,12 +31,6 @@ services:
     command: -redis.addr=redis:6379
     restart: always
  
-  rabbitmq_exporter:
-    image: kbudde/rabbitmq-exporter
-    environment:
-      RABBIT_URL: http://rabbitmq:15672
-    restart: always
-
   mongodb_exporter:
     image: eses/mongodb_exporter
     expose:
@@ -99,18 +93,15 @@ services:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
     links:
      - mongo
-     - rabbitmq
      - redis
     depends_on:
      - mongo
-     - rabbitmq
      - redis
     ports:
       - "3000:3000"     
     environment:
      PORT: 3000
      MONGO_URI: mongodb://mongo/staffdotcom
-     RABBIT_URI: amqp://rabbitmq
      REDIS_URL: redis://redis
      API_URL: "http://api.staff.local"
      NODE_ENV: production
@@ -128,15 +119,12 @@ services:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
     links:
      - mongo
-     - rabbitmq
      - redis
     depends_on:
      - mongo
-     - rabbitmq
      - redis
     environment:
      MONGO_URI: mongodb://mongo/staffdotcom
-     RABBIT_URI: amqp://rabbitmq
      REDIS_URL: redis://redis
      NODE_ENV: production
      DEBUG_MQ: 1
@@ -151,15 +139,12 @@ services:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
     links:
      - mongo
-     - rabbitmq
      - redis
     depends_on:
      - mongo
-     - rabbitmq
      - redis
     environment:
      MONGO_URI: mongodb://mongo/staffdotcom
-     RABBIT_URI: amqp://rabbitmq
      REDIS_URL: redis://redis
      NODE_ENV: production
      DEBUG_MQ: 1
@@ -225,14 +210,6 @@ services:
       - ./storage/mongodb-backup:/backup
     cap_add:
       - ALL
-    restart: always
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-      - "1883:1883"
     restart: always
 
   redis:
