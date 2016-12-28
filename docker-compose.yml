@@ -7,16 +7,14 @@ services:
     restart: always
     volumes:
       - ./etc/prometheus/:/etc/prometheus/
-      - ./storage/prometheus:/prometheus
+      - /mnt/prometheus:/prometheus
     command:
       - '-config.file=/etc/prometheus/prometheus.yml'
       - '-storage.local.path=/prometheus'
-      - '-alertmanager.url=http://alertmanager:9093'
     expose:
       - 9090
     links:
       - cadvisor:cadvisor
-      - alertmanager:alertmanager
     depends_on:
       - cadvisor
   
@@ -26,33 +24,13 @@ services:
     expose:
       - 9001
  
-  redis_exporter:
-    image: 21zoo/redis_exporter
-    command: -redis.addr=redis:6379
-    restart: always
- 
-  rabbitmq_exporter:
-    image: kbudde/rabbitmq-exporter
-    environment:
-      RABBIT_URL: http://rabbitmq:15672
-    restart: always
-
   mongodb_exporter:
     image: eses/mongodb_exporter
     expose:
       - 9104
     volumes:
-      - ./storage/mongodb_exporter/:/log
+      - /media/mongodb_exporter/:/log
     command: -mongodb.uri mongodb://mongo/staffdotcom -log_dir /log
-    restart: always
-
-  alertmanager:
-    image: prom/alertmanager
-    volumes: 
-      - ./etc/alertmanager/:/etc/alertmanager/
-    command:
-      - '-config.file=/etc/alertmanager/config.yml'
-      - '-storage.path=/alertmanager'
     restart: always
       
   cadvisor:
@@ -71,12 +49,11 @@ services:
     depends_on:
       - prometheus
     volumes:
-      - ./storage/grafana:/var/lib/grafana
+      - /media/grafana:/var/lib/grafana
     environment:
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_SERVER_ROOT_URL: "/grafana/"
-    env_file:
-      - .env
+      GF_SECURITY_ADMIN_PASSWORD:
     restart: always
 
   nginx:
@@ -96,145 +73,83 @@ services:
     restart: always
   
   api-server:
-    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
+    image: staffreg-justinstaff.azurecr.io/staff-api-server:latest
     links:
      - mongo
-     - rabbitmq
-     - redis
     depends_on:
      - mongo
-     - rabbitmq
-     - redis
     ports:
       - "3000:3000"     
     environment:
      PORT: 3000
      MONGO_URI: mongodb://mongo/staffdotcom
-     RABBIT_URI: amqp://rabbitmq
-     REDIS_URL: redis://redis
-     API_URL: "http://api.staff.local"
+     API_URL: "/"
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
-     DEBUG_MQ: 1
      INSTALL_MODE: "local"
      ATATUS_KEY: "61a362f515c14428865d5fc4214346cc"
     env_file:
-      - .env
-      - azure.env
+      - env
     command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 server.js"
     restart: always
 
   api-stats:
-    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
+    image: staffreg-justinstaff.azurecr.io/staff-api-server:latest
     links:
      - mongo
-     - rabbitmq
-     - redis
-    depends_on:
-     - mongo
-     - rabbitmq
-     - redis
     environment:
      MONGO_URI: mongodb://mongo/staffdotcom
-     RABBIT_URI: amqp://rabbitmq
-     REDIS_URL: redis://redis
      NODE_ENV: production
-     DEBUG_MQ: 1
-     INSTALL_MODE: "local"
     env_file:
-      - .env
-      - azure.env
+      - env
     command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/workers/stat.js"
     restart: always
  
   api-retention:
-    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-api-server:latest
+    image: staffreg-justinstaff.azurecr.io/staff-api-server:latest
     links:
      - mongo
-     - rabbitmq
-     - redis
-    depends_on:
-     - mongo
-     - rabbitmq
-     - redis
     environment:
      MONGO_URI: mongodb://mongo/staffdotcom
-     RABBIT_URI: amqp://rabbitmq
-     REDIS_URL: redis://redis
      NODE_ENV: production
-     DEBUG_MQ: 1
-     INSTALL_MODE: "local"
     env_file:
-      - .env
-      - azure.env
+      - env
     command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/workers/retention.js"
     restart: always
   
   app-web:
-    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-web:latest
+    image: staffreg-justinstaff.azurecr.io/staff-app-web:latest
     environment:
-     PORT: 3000
-     API_URL: "http://api.staff.local"
+     API_URL: "/"
      BASE_DIR: "/app/"
-     NODE_ENV: production
     restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
   
   app-admin:
-    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-admin:latest
+    image: staffreg-justinstaff.azurecr.io/staff-app-admin:latest
     environment:
-     PORT: 3000
-     API_URL: "http://api.staff.local"
+     API_URL: "/"
      BASE_DIR: "/admin/"
-     NODE_ENV: production
     restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
   
   app-desktop:
-    image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-desktop:latest
+    image: staffreg-justinstaff.azurecr.io/staff-app-desktop:latest
     environment:
-     PORT: 3000
-     API_URL: "http://api.staff.local"
+     API_URL: "/"
      BASE_DIR: "/desktop/"
-     NODE_ENV: production
     restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
    
   mongo:
     image: mongo
     volumes:
-      - ./storage/mongodb:/data/db
+      - /media/mongodb:/data/db
     restart: always
-  
-  mongo-backup:
-    #image: tutum/mongodb-backup
-    build: src/mongodb-backup
-    privileged: true
-    depends_on:
-      - mongo
-    environment:
-      MONGODB_HOST: mongo
-      MONGODB_PORT: 27017
-      MONGODB_DB: staffdotcom
-      CRON_TIME: '0 0 * * *'
-      MAX_BACKUPS: 10
-      INIT_BACKUP: 1
-    env_file:
-      - azure.env
+ 
+  azure-sensor:
+    image: microsoft/applicationinsights
+    command: ikey=6115c4d3-f555-481f-b170-b5b62da16017
     volumes:
-      - ./storage/mongodb-backup:/backup
-    cap_add:
-      - ALL
-    restart: always
+      - /var/run/docker.sock:/docker.sock
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-      - "1883:1883"
-    restart: always
-
-  redis:
-    image: redis
-    restart: always
