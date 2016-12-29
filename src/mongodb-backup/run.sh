@@ -24,12 +24,12 @@ BACKUP_NAME=\$(date +\%Y.\%m.\%d.\%H\%M\%S)
 
 echo "=> Backup started"
 
-if ! [ "$AZURE_NAME" == "" ]; then
+if ! [ "$AZURE_STORAGE_NAME" == "" ]; then
   echo "=> Mounting Azure storage"
   BACKUP_PATH=/backup.azure
   mkdir -p \${BACKUP_PATH}
   mount|grep cifs >/dev/null && umount \${BACKUP_PATH}
-  mount -t cifs //${AZURE_NAME}.file.core.windows.net/${AZURE_BACKUP_SHARE} \${BACKUP_PATH} -o vers=3.0,username=${AZURE_NAME},password=${AZURE_KEY},dir_mode=0777,file_mode=0777
+  mount -t cifs //${AZURE_STORAGE_NAME}.file.core.windows.net/${AZURE_BACKUP_SHARE} \${BACKUP_PATH} -o vers=3.0,username=${AZURE_STORAGE_NAME},password=${AZURE_STORAGE_KEY},dir_mode=0777,file_mode=0777
 fi
 
 if ${BACKUP_CMD} ;then

@@ -96,6 +96,9 @@ services:
     privileged: true
     depends_on:
       - mongo
+      - azure-mongo-backup
+    env_file:
+      - env
     environment:
       MONGODB_HOST: mongo
       MONGODB_PORT: 27017
@@ -103,13 +106,21 @@ services:
       CRON_TIME: '0 0 * * *'
       MAX_BACKUPS: 10
       INIT_BACKUP: 1
+      BACKUP_PATH: /backup
     cap_add:
       - ALL
     restart: always
 
+  azure-mongo-backup:
+    env_file:
+      - env
+    build: src/azure-backup
+    
   azure-sensor:
     image: microsoft/applicationinsights
     command: ikey=${AZURE_MONITORING_KEY}
+    env_file:
+      - env
     volumes:
       - /var/run/docker.sock:/docker.sock
 
