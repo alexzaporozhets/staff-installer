@@ -1,61 +1,6 @@
 version: '2'
 
 services:
-  prometheus:
-    image: prom/prometheus
-    container_name: prometheus
-    restart: always
-    volumes:
-      - ./etc/prometheus/:/etc/prometheus/
-      - /mnt/prometheus:/prometheus
-    command:
-      - '-config.file=/etc/prometheus/prometheus.yml'
-      - '-storage.local.path=/prometheus'
-    expose:
-      - 9090
-    links:
-      - cadvisor:cadvisor
-    depends_on:
-      - cadvisor
-  
-  node-exporter:
-    image: prom/node-exporter
-    restart: always
-    expose:
-      - 9001
- 
-  mongodb_exporter:
-    image: eses/mongodb_exporter
-    expose:
-      - 9104
-    volumes:
-      - /media/mongodb_exporter/:/log
-    command: -mongodb.uri mongodb://mongo/staffdotcom -log_dir /log
-    restart: always
-      
-  cadvisor:
-    image: google/cadvisor
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    expose:
-      - 8080
-    restart: always
-  
-  grafana:
-    image: grafana/grafana
-    depends_on:
-      - prometheus
-    volumes:
-      - /media/grafana:/var/lib/grafana
-    environment:
-      GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_SERVER_ROOT_URL: "/grafana/"
-      GF_SECURITY_ADMIN_PASSWORD:
-    restart: always
-
   nginx:
     build: src/nginx
     restart: always
@@ -69,7 +14,6 @@ services:
       - app-web
       - app-admin
       - app-desktop
-      - grafana
     restart: always
   
   api-server:
@@ -147,9 +91,25 @@ services:
       - /media/mongodb:/data/db
     restart: always
  
+  mongo-backup:
+    build: src/mongodb-backup
+    privileged: true
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_HOST: mongo
+      MONGODB_PORT: 27017
+      MONGODB_DB: staffdotcom
+      CRON_TIME: '0 0 * * *'
+      MAX_BACKUPS: 10
+      INIT_BACKUP: 1
+    cap_add:
+      - ALL
+    restart: always
+
   azure-sensor:
     image: microsoft/applicationinsights
-    command: ikey=6115c4d3-f555-481f-b170-b5b62da16017
+    command: ikey=${AZURE_MONITORING_KEY}
     volumes:
       - /var/run/docker.sock:/docker.sock
 
