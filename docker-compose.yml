@@ -18,16 +18,10 @@ services:
   
   api-server:
     image: staffreg-justinstaff.azurecr.io/staff-api-server:latest
-    links:
-     - mongo
-     - redis
-    depends_on:
-     - mongo
     ports:
       - "3000:3000"     
     environment:
      PORT: 3000
-     MONGO_URI: mongodb://mongo/staffdotcom
      API_URL: "/"
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
@@ -43,11 +37,7 @@ services:
 
   api-stats:
     image: staffreg-justinstaff.azurecr.io/staff-api-server:latest
-    links:
-     - mongo
-     - redis
     environment:
-     MONGO_URI: mongodb://mongo/staffdotcom
      NODE_ENV: production
     env_file:
       - env
@@ -56,11 +46,7 @@ services:
  
   api-retention:
     image: staffreg-justinstaff.azurecr.io/staff-api-server:latest
-    links:
-     - mongo
-     - redis
     environment:
-     MONGO_URI: mongodb://mongo/staffdotcom
      NODE_ENV: production
     env_file:
       - env
@@ -91,22 +77,14 @@ services:
     restart: always
     command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
    
-  mongo:
-    image: mongo
-    volumes:
-      - /media/mongodb:/data/db
-    restart: always
- 
   mongo-backup:
     build: src/mongodb-backup
     privileged: true
     depends_on:
-      - mongo
       - azure-mongo-backup
     env_file:
       - env
     environment:
-      MONGODB_HOST: mongo
       MONGODB_PORT: 27017
       MONGODB_DB: staffdotcom
       CRON_TIME: '0 0 * * *'
@@ -129,7 +107,3 @@ services:
       - env
     volumes:
       - /var/run/docker.sock:/docker.sock
-
-  redis:
-    image: redis
-    restart: always
