@@ -81,11 +81,9 @@ services:
       - "443:443"
     volumes:
       - ./etc/nginx:/nginx/conf
+      - ./storage/static:/static
     links:
       - api-server
-      - app-web
-      - app-admin
-      - app-desktop
       - grafana
     restart: always
   
@@ -94,15 +92,12 @@ services:
     links:
      - mongo
      - redis
-    depends_on:
-     - mongo
-     - redis
     ports:
       - "3000:3000"     
     environment:
+     REDIS_URL: redis://redis
      PORT: 3000
      MONGO_URI: mongodb://mongo/staffdotcom
-     REDIS_URL: redis://redis
      API_URL: "http://api.staff.local"
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
@@ -120,12 +115,9 @@ services:
     links:
      - mongo
      - redis
-    depends_on:
-     - mongo
-     - redis
     environment:
-     MONGO_URI: mongodb://mongo/staffdotcom
      REDIS_URL: redis://redis
+     MONGO_URI: mongodb://mongo/staffdotcom
      NODE_ENV: production
      DEBUG_MQ: 1
      INSTALL_MODE: "local"
@@ -140,10 +132,8 @@ services:
     links:
      - mongo
      - redis
-    depends_on:
-     - mongo
-     - redis
     environment:
+     REDIS_URL: redis://redis
      MONGO_URI: mongodb://mongo/staffdotcom
      REDIS_URL: redis://redis
      NODE_ENV: production
@@ -157,33 +147,21 @@ services:
   
   app-web:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-web:latest
-    environment:
-     PORT: 3000
-     API_URL: "http://api.staff.local"
-     BASE_DIR: "/app/"
-     NODE_ENV: production
-    restart: always
-    command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
+    volumes:
+      - ./storage/static/app-web:/app-web/
+    command: bash -c "sleep 3; cp -ax /pipeline/source/dist/* /app-web/"
   
   app-admin:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-admin:latest
-    environment:
-     PORT: 3000
-     API_URL: "http://api.staff.local"
-     BASE_DIR: "/admin/"
-     NODE_ENV: production
-    restart: always
-    command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
+    volumes:
+      - ./storage/static/app-admin:/app-admin/
+    command: bash -c "sleep 3; cp -ax /pipeline/source/dist /app-admin/admin"
   
   app-desktop:
     image: 847166803921.dkr.ecr.us-east-1.amazonaws.com/staff-app-desktop:latest
-    environment:
-     PORT: 3000
-     API_URL: "http://api.staff.local"
-     BASE_DIR: "/desktop/"
-     NODE_ENV: production
-    restart: always
-    command: bash -c "cd /pipeline/source/dist && python -m SimpleHTTPServer 3000"
+    volumes:
+      - ./storage/static/app-desktop:/app-desktop/
+    command: bash -c "sleep 3; cp -ax /pipeline/source/dist /app-desktop/desktop"
    
   mongo:
     image: mongo
@@ -214,4 +192,3 @@ services:
 
   redis:
     image: redis
-    restart: always
