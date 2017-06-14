@@ -192,3 +192,15 @@ services:
 
   redis:
     image: redis
+
+  s3:
+    image: minio/minio
+    volumes:
+      - ./storage/s3:/data
+      - ./storage/s3_config:/root/.minio
+    environment:
+      MINIO_STORAGE_USE_HTTPS: False
+    env_file:
+      - .env
+    command: server /data
+

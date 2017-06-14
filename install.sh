@@ -31,7 +31,7 @@ function warn()
 $ECHO
 $ECHO = ${c_green} Generating passwords ${c_norm}
 
-USE_S3=0
+USE_S3=1
 GRAFANA_PASS=$(date +%s | sha256sum | base64 | head -c 8)
 
 IP=$(ifconfig | awk '/inet addr/{print substr($2,6)}'|grep -vE '^(127\.0\.0\.1|172\.[12])'|head -n 1)
@@ -55,6 +55,8 @@ AWS_ACCESS_KEY_ID=${S3_ID}
 AWS_SECRET_ACCESS_KEY=${S3_PASS}
 S3PROXY_IDENTITY=${S3_ID}
 S3PROXY_CREDENTIAL=${S3_PASS}
+MINIO_ACCESS_KEY=${S3_ID}
+MINIO_SECRET_KEY=${S3_PASS}
 GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
 EOT
 else
