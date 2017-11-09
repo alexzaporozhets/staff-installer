@@ -106,7 +106,6 @@ services:
      ATATUS_KEY: "61a362f515c14428865d5fc4214346cc"
     env_file:
       - .env
-      - azure.env
     command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 server.js"
     restart: always
 
@@ -123,7 +122,6 @@ services:
      INSTALL_MODE: "local"
     env_file:
       - .env
-      - azure.env
     command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/workers/stat.js"
     restart: always
  
@@ -141,7 +139,6 @@ services:
      INSTALL_MODE: "local"
     env_file:
       - .env
-      - azure.env
     command: bash -c "sleep 5; cd /pipeline/source; node --optimize_for_size --max_old_space_size=460 --gc_interval=100 app/workers/retention.js"
     restart: always
   
@@ -182,8 +179,6 @@ services:
       CRON_TIME: '0 0 * * *'
       MAX_BACKUPS: 10
       INIT_BACKUP: 1
-    env_file:
-      - azure.env
     volumes:
       - ./storage/mongodb-backup:/backup
     cap_add:
@@ -199,7 +194,7 @@ services:
       - ./storage/s3:/data
       - ./storage/s3_config:/root/.minio
     environment:
-      MINIO_STORAGE_USE_HTTPS: False
+      MINIO_STORAGE_USE_HTTPS: 0
     env_file:
       - .env
     command: server /data
