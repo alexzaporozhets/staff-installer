@@ -98,6 +98,7 @@ services:
      REDIS_URL: redis://redis
      PORT: 3000
      MONGO_URI: mongodb://mongo/staffdotcom
+     MONGOMQ_URI: mongodb://mongo/staffdotcom
      API_URL: "http://api.staff.local"
      NODE_ENV: production
      NODE_API_CLUSTERS: 8
@@ -117,6 +118,7 @@ services:
     environment:
      REDIS_URL: redis://redis
      MONGO_URI: mongodb://mongo/staffdotcom
+     MONGOMQ_URI: mongodb://mongo/staffdotcom
      NODE_ENV: production
      DEBUG_MQ: 1
      INSTALL_MODE: "local"
@@ -133,6 +135,7 @@ services:
     environment:
      REDIS_URL: redis://redis
      MONGO_URI: mongodb://mongo/staffdotcom
+     MONGOMQ_URI: mongodb://mongo/staffdotcom
      REDIS_URL: redis://redis
      NODE_ENV: production
      DEBUG_MQ: 1
